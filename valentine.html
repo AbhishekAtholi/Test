@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine? 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Poppins',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  background: linear-gradient(135deg, #f3e6ff 0%, #e0c7ff 30%, #c8a2ff 60%, #9b6dff 100%);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+}
+
+/* glowing overlay */
+body::before{
+  content:'';
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(200,150,255,0.35) 0%, transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(155,109,255,0.35) 0%, transparent 55%);
+  animation: gradientPulse 8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+@keyframes gradientPulse{
+  0%,100%{opacity:.5;}
+  50%{opacity:.8;}
+}
+
+/* floating hearts + flowers */
+.floating-heart{
+  position:fixed;
+  font-size:32px;
+  animation: floatUp 10s infinite ease-in-out;
+  opacity:0;
+  pointer-events:none;
+  z-index:1;
+}
+
+@keyframes floatUp{
+  0%{opacity:0; transform:translateY(100vh) rotate(0deg);}
+  10%,90%{opacity:.7;}
+  100%{opacity:0; transform:translateY(-100px) rotate(360deg);}
+}
+
+/* pages */
+.page{
+  display:none;
+  text-align:center;
+  position:relative;
+  z-index:10;
+  animation:fadeIn .6s ease-out;
+  width:100%;
+  max-width:1200px;
+  padding:20px;
+}
+.page.active{display:block;}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* titles */
+h1{
+  font-family:'Pacifico',cursive;
+  font-size:4em;
+  color:#9b6dff;
+  margin-bottom:50px;
+  text-shadow:0 0 20px rgba(155,109,255,.5);
+}
+
+h2{
+  font-family:'Pacifico',cursive;
+  font-size:2.5em;
+  color:#9b6dff;
+  margin-bottom:40px;
+}
+
+/* buttons */
+.buttons{
+  display:flex;
+  gap:40px;
+  justify-content:center;
+  align-items:center;
+  margin-top:40px;
+  flex-wrap:wrap;
+}
+
+button{
+  font-size:1.8em;
+  font-weight:700;
+  padding:25px 60px;
+  border:none;
+  border-radius:60px;
+  cursor:pointer;
+  transition:.4s;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+#yesBtn{
+  background:linear-gradient(135deg,#c77dff,#9b6dff);
+  color:white;
+}
+#yesBtn:hover{ transform:scale(1.15); }
+
+/* NO button */
+#noBtn{
+  background:linear-gradient(135deg,#d4c2ff,#b8a0ff);
+  color:white;
+  position:relative;
+  transition:all .3s ease;
+}
+
+.no-red{ color:#ff2e63 !important; }
+.no-purple{ color:#9b6dff !important; }
+.no-dark{ color:#6a1b9a !important; }
+
+/* choice cards */
+.choices{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:30px;
+  margin-top:40px;
+}
+
+.choice-card{
+  background:white;
+  padding:40px 30px;
+  border-radius:30px;
+  cursor:pointer;
+  transition:.4s;
+  box-shadow:0 10px 30px rgba(155,109,255,.3);
+}
+
+.choice-card:hover{
+  transform:translateY(-10px) scale(1.05);
+  border:3px solid #9b6dff;
+}
+
+.emoji{font-size:4em; display:block;}
+.label{font-size:1.5em; color:#9b6dff;}
+
+/* celebration overlay */
+.celebration-overlay{
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,.25);
+  backdrop-filter:blur(10px);
+  z-index:999;
+}
+.celebration-overlay.active{display:block;}
+
+/* final message */
+.final-message{
+  background:white;
+  padding:50px;
+  border-radius:40px;
+  box-shadow:0 20px 60px rgba(155,109,255,.5);
+  margin:40px auto;
+  max-width:800px;
+  font-size:1.3em;
+  color:#9b6dff;
+}
+
+/* summary */
+.summary-box{
+  display:none;
+  background:white;
+  padding:40px;
+  border-radius:30px;
+  box-shadow:0 20px 60px rgba(155,109,255,.5);
+  margin:30px auto;
+  max-width:600px;
+}
+.summary-box.active{display:block;}
+</style>
+</head>
+
+<body>
+
+<div class="celebration-overlay" id="celebrationOverlay"></div>
+
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
+<h1 id="heading">Will You Be My Valentine? ❤️</h1>
+<div class="buttons">
+  <button id="yesBtn">YES 💕</button>
+  <button id="noBtn">NO 💔</button>
+</div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+<h2>What would you like for Valentine's Day?</h2>
+<div class="choices">
+  <div class="choice-card" onclick="selectChoice('gift','Surprise Gift','page3')">
+    <span class="emoji">🎁</span><div class="label">Surprise Gift</div>
+  </div>
+  <div class="choice-card" onclick="selectChoice('gift','Flowers','page3')">
+    <span class="emoji">🌹</span><div class="label">Flowers</div>
+  </div>
+  <div class="choice-card" onclick="selectChoice('gift','Chocolates','page3')">
+    <span class="emoji">🍫</span><div class="label">Chocolates</div>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page3">
+<h2>How would you like to spend the day?</h2>
+<div class="choices">
+  <div class="choice-card" onclick="selectChoice('activity','Movie','page4')">
+    <span class="emoji">🎬</span><div class="label">Movie</div>
+  </div>
+  <div class="choice-card" onclick="selectChoice('activity','Foodie Calls','page4')">
+    <span class="emoji">🍱</span><div class="label">Foodie Calls</div>
+  </div>
+  <div class="choice-card" onclick="selectChoice('activity','Long Ride','page4')">
+    <span class="emoji">🛵</span><div class="label">Scooter Ride</div>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page" id="page4">
+<h2>What would you like to eat?</h2>
+<div class="choices">
+  <div class="choice-card" onclick="selectChoice('food','Mandi','page5')">
+    <span class="emoji">🍖</span><div class="label">Mandi</div>
+  </div>
+  <div class="choice-card" onclick="selectChoice('food','Corn Dog','page5')">
+    <span class="emoji">🌭</span><div class="label">Corn Dog</div>
+  </div>
+  <div class="choice-card" onclick="selectChoice('food','Spicy Food','page5')">
+    <span class="emoji">🌶️</span><div class="label">Spicy Food</div>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page" id="page5">
+<h2>My Promise to You 💖</h2>
+<div class="final-message">
+Thank you for choosing me as your Valentine 💖<br><br>
+I may not be perfect, but I will always try my best to make you smile, feel loved, and feel cherished<br><br>
+You are truly special to me. ❤️
+</div>
+
+<div class="summary-box" id="summaryBox">
+<h3>Your Choices 💕</h3>
+<div><strong>Gift:</strong> <span id="summaryGift"></span></div>
+<div><strong>Activity:</strong> <span id="summaryActivity"></span></div>
+<div><strong>Food:</strong> <span id="summaryFood"></span></div>
+</div>
+</div>
+
+<script>
+const userChoices={gift:'',activity:'',food:''};
+let noClickCount=0;
+
+// START FLOWERS + HEARTS IMMEDIATELY
+function createFloatingHearts(){
+ const symbols=['💕','❤️','💖','💗','💝','🌸','🌹','🌷','💐'];
+ for(let i=0;i<40;i++){
+   setTimeout(()=>{
+     const h=document.createElement('div');
+     h.className='floating-heart';
+     h.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+     h.style.left=Math.random()*100+'%';
+     document.body.appendChild(h);
+   },i*250);
+ }
+}
+createFloatingHearts();
+
+// YES CLICK
+document.getElementById('yesBtn').addEventListener('click',()=>{
+ document.getElementById('celebrationOverlay').classList.add('active');
+ setTimeout(()=>{
+   document.getElementById('celebrationOverlay').classList.remove('active');
+   goToPage('page2');
+ },2000);
+});
+
+// NO button moves + changes color
+const noBtn=document.getElementById('noBtn');
+const heading=document.getElementById('heading');
+
+noBtn.addEventListener('click',()=>{
+ const msgs=["Are you sure? 🥺","Think again! 😭","Last chance! 💔"];
+ const colors=["no-red","no-purple","no-dark"];
+
+ heading.textContent=msgs[Math.min(noClickCount,msgs.length-1)];
+
+ noBtn.classList.remove("no-red","no-purple","no-dark");
+ noBtn.classList.add(colors[Math.min(noClickCount,colors.length-1)]);
+
+ const maxX=window.innerWidth-noBtn.offsetWidth-50;
+ const maxY=window.innerHeight-noBtn.offsetHeight-100;
+
+ noBtn.style.position="fixed";
+ noBtn.style.left=Math.random()*maxX+"px";
+ noBtn.style.top=Math.random()*maxY+"px";
+
+ noClickCount++;
+
+ if(noClickCount>=msgs.length){
+   noBtn.style.display="none";
+   heading.textContent="Only YES remains! 💖";
+ }
+});
+
+function goToPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+
+ if(id==='page5'){
+   setTimeout(showSummaryAndDownload,15000);
+ }
+}
+
+function selectChoice(cat,val,next){
+ userChoices[cat]=val;
+ setTimeout(()=>goToPage(next),200);
+}
+
+function showSummaryAndDownload(){
+ document.getElementById('summaryGift').textContent=userChoices.gift;
+ document.getElementById('summaryActivity').textContent=userChoices.activity;
+ document.getElementById('summaryFood').textContent=userChoices.food;
+ document.getElementById('summaryBox').classList.add('active');
+
+ setTimeout(downloadChoices,5000);
+}
+
+function downloadChoices(){
+ const text=`Valentine Choices:
+Gift: ${userChoices.gift}
+Activity: ${userChoices.activity}
+Food: ${userChoices.food}`;
+ const blob=new Blob([text],{type:'text/plain'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='valentine_choices.txt';
+ a.click();
+}
+</script>
+
+</body>
+</html>
